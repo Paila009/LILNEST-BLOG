@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Theme Colors — LILNEST pastel pink theme */
+    --color-background: #FFF1F5; /* rose-50 */
+    --color-foreground: #3F3D56; /* soft slate for readability */
+    --color-border: #F8CFE0; /* light pink border */
+    --color-input: #FFE4EC; /* elevated surface */
+    --color-ring: #F472B6; /* pink-400 focus */
+    
+    /* Card Colors */
+    --color-card: #FFFFFF; 
+    --color-card-foreground: #3F3D56; 
+    
+    /* Popover Colors */
+    --color-popover: #FFFFFF;
+    --color-popover-foreground: #3F3D56;
+    
+    /* Muted Colors */
+    --color-muted: #FFE4EC; 
+    --color-muted-foreground: #8E8AA0; 
+    
+    /* Primary Colors */
+    --color-primary: #EC4899; /* pink-500 */
+    --color-primary-foreground: #FFFFFF; 
+    
+    /* Secondary Colors */
+    --color-secondary: #F9A8D4; /* pink-300 */
+    --color-secondary-foreground: #3F3D56;
+    
+    /* Accent Colors */
+    --color-accent: #FB7185; /* rose-400 */
+    --color-accent-foreground: #FFFFFF;
+    
+    /* Success Colors */
+    --color-success: #22C55E;
+    --color-success-foreground: #FFFFFF;
+    
+    /* Warning Colors */
+    --color-warning: #F59E0B; 
+    --color-warning-foreground: #3F3D56;
+    
+    /* Error/Destructive Colors */
+    --color-error: #EF4444; 
+    --color-error-foreground: #FFFFFF;
+    --color-destructive: #EF4444;
+    --color-destructive-foreground: #FFFFFF;
+  }
+  
+  /* Dark Theme */
+  [data-theme="dark"], .dark {
+    --color-background: #1B1325; /* deep plum */
+    --color-foreground: #FCE7F3; /* pink-100 */
+    --color-border: #3B2B41; 
+    --color-input: #25182E; 
+    --color-ring: #F9A8D4; /* soft pink */
+    
+    /* Card */
+    --color-card: #25182E;
+    --color-card-foreground: #FCE7F3;
+    
+    /* Popover */
+    --color-popover: #25182E;
+    --color-popover-foreground: #FCE7F3;
+    
+    /* Muted */
+    --color-muted: #3B2B41;
+    --color-muted-foreground: #E9D5FF;
+    
+    /* Primary */
+    --color-primary: #F472B6; 
+    --color-primary-foreground: #1B1325;
+    
+    /* Secondary */
+    --color-secondary: #DBA4C6;
+    --color-secondary-foreground: #1B1325;
+    
+    /* Accent */
+    --color-accent: #FB7185; 
+    --color-accent-foreground: #1B1325;
+    
+    /* Success */
+    --color-success: #22C55E; 
+    --color-success-foreground: #1B1325;
+    
+    /* Warning */
+    --color-warning: #FBBF24; 
+    --color-warning-foreground: #1B1325;
+    
+    /* Error */
+    --color-error: #F87171; 
+    --color-error-foreground: #1B1325;
+    --color-destructive: #F87171;
+    --color-destructive-foreground: #1B1325;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Simplified color classes */
+  .bg-background { background-color: var(--color-background); }
+  .text-foreground { color: var(--color-foreground); }
+  .border-border { border-color: var(--color-border); }
+  .bg-card { background-color: var(--color-card); }
+  .text-card-foreground { color: var(--color-card-foreground); }
+  .bg-primary { background-color: var(--color-primary); }
+  .text-primary { color: var(--color-primary); }
+  .text-primary-foreground { color: var(--color-primary-foreground); }
+  .bg-muted { background-color: var(--color-muted); }
+  .text-muted-foreground { color: var(--color-muted-foreground); }
+}
+
+@layer utilities {
+  /* Simplified animations */
+  @keyframes gentle-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1.0; }
+  }
+  
+  .animate-gentle-pulse {
+    animation: gentle-pulse 3s ease-in-out infinite;
+  }
+  
+  /* Simplified hover effects */
+  .hover-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .hover-lift:hover {
+    @apply transform -translate-y-1;
+  }
+  
+  /* Simplified shadows */
+  .shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Theme transition */
+  .theme-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
