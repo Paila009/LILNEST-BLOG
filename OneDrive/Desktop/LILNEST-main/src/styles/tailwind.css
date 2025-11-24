@@ -26,7 +26,8 @@
     
     /* Muted Colors */
     --color-muted: #FFE4EC; 
-    --color-muted-foreground: #8E8AA0; 
+    /* Darken for better readability on light backgrounds */
+    --color-muted-foreground: #6B7280; /* gray-600 */
     
     /* Primary Colors */
     --color-primary: #EC4899; /* pink-500 */
