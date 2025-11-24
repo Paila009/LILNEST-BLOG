@@ -8,6 +8,8 @@ A comprehensive maternal wellness platform built with modern web technologies, d
 ![Firebase](https://img.shields.io/badge/Firebase-10.8.0-FFCA28)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+🚀 **Live Demo**: Deployed on Vercel
+
 ## ✨ Features
 
 ### 🤖 AI Assistant with Groq Integration
