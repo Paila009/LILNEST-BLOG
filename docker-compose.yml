@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # ─── MongoDB ─────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: lilnest-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: lilnest_db
+
+  # ─── Redis ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: lilnest-redis
+    ports:
+      - "6379:6379"
+
+  # ─── Django Backend ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lilnest-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SECRET_KEY=lilnest-production-secret-change-me
+      - MONGODB_HOST=mongodb://mongodb:27017
+      - MONGODB_NAME=lilnest_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CORS_ORIGINS=http://localhost:3000
+      - DEBUG=True
+    depends_on:
+      - mongodb
+      - redis
+
+  # ─── Celery Worker ──────────────────────────────────────
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lilnest-celery
+    command: celery -A lilnest worker -l info
+    environment:
+      - DJANGO_SECRET_KEY=lilnest-production-secret-change-me
+      - MONGODB_HOST=mongodb://mongodb:27017
+      - MONGODB_NAME=lilnest_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - mongodb
+      - redis
+
+  # ─── Celery Beat (Scheduler) ────────────────────────────
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lilnest-celery-beat
+    command: celery -A lilnest beat -l info
+    environment:
+      - DJANGO_SECRET_KEY=lilnest-production-secret-change-me
+      - MONGODB_HOST=mongodb://mongodb:27017
+      - MONGODB_NAME=lilnest_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - mongodb
+      - redis
+
+  # ─── Next.js Frontend ──────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lilnest-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
