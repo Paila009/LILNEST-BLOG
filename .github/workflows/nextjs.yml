@@ -31,11 +31,6 @@ jobs:
           cache: npm
           cache-dependency-path: ./frontend/package-lock.json
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: next
-      
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -49,7 +44,7 @@ jobs:
         run: npm ci
         
       - name: Build with Next.js
-        run: npx --no-install next build
+        run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://lilnest-api.example.com/api # Placeholder for production API
           
