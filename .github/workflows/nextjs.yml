@@ -6,16 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,11 +29,6 @@ jobs:
           cache: npm
           cache-dependency-path: ./frontend/package-lock.json
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: next
-      
       - name: Restore cache
         uses: actions/cache@v4
         with:
@@ -49,22 +42,16 @@ jobs:
         run: npm ci
         
       - name: Build with Next.js
-        run: npx --no-install next build
+        run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://lilnest-api.example.com/api # Placeholder for production API
-          
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./frontend/out
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Ensure .nojekyll
+        run: touch ./out/.nojekyll
+
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/out
+          force_orphan: true

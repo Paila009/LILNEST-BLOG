@@ -1,0 +1,85 @@
+services:
+  - type: web
+    name: lilnest-backend
+    env: python
+    region: singapore
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      gunicorn lilnest.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: CORS_ALLOW_ALL
+        value: "True"
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: lilnest-redis
+          property: connectionString
+      - key: MONGODB_HOST
+        sync: false # Requires manual entry in Render Dashboard
+      - key: MONGODB_NAME
+        value: lilnest_production
+
+  - type: worker
+    name: lilnest-celery
+    env: python
+    region: singapore
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      celery -A lilnest worker --loglevel=info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: lilnest-redis
+          property: connectionString
+      - key: MONGODB_HOST
+        sync: false
+      - key: MONGODB_NAME
+        value: lilnest_production
+
+  - type: worker
+    name: lilnest-beat
+    env: python
+    region: singapore
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      celery -A lilnest beat --loglevel=info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: lilnest-redis
+          property: connectionString
+      - key: MONGODB_HOST
+        sync: false
+      - key: MONGODB_NAME
+        value: lilnest_production
+
+  - type: redis
+    name: lilnest-redis
+    region: singapore
+    plan: free
+    ipAllowList: [] # internal only
