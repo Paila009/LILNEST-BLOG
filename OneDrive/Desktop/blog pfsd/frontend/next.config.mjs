@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: '/Akash-portfolio-FSAD',
+  basePath: '/LILNEST-BLOG',
   images: {
     unoptimized: true,
   },
