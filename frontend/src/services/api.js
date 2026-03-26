@@ -33,6 +33,73 @@ api.interceptors.response.use(
   }
 );
 
+// ─── DEMO MOCK ADAPTER ──────────────────────────────────────────
+// Bypass backend entirely to allow the GitHub Pages site to function!
+api.interceptors.request.use((config) => {
+  // We mock everything so it works without MongoDB/Backend
+  config.adapter = async () => {
+    await new Promise(r => setTimeout(r, 400)); // fake network delay
+    const url = config.url;
+    let data = {};
+    if (config.data) {
+      try { data = typeof config.data === 'string' ? JSON.parse(config.data) : config.data; } catch(e){}
+    }
+
+    const ok = (body) => ({ data: body, status: 200, statusText: 'OK', headers: {}, config, request: {} });
+
+    // Auth Mocks
+    if (url.includes('/auth/login/')) {
+      // Accept any password
+      const role = data.email?.includes('doctor') ? 'doctor' : (data.email?.includes('child') ? 'child' : 'mother');
+      const user = { id: 'user1', email: data.email || 'demo@example.com', full_name: 'Demo User', role };
+      if (typeof window !== 'undefined') localStorage.setItem('lilnest_user', JSON.stringify(user));
+      return ok({ user, tokens: { access: 'mock_token' } });
+    }
+    if (url.includes('/auth/register/')) {
+      const user = { id: 'user2', email: data.email, full_name: data.full_name, role: data.role };
+      if (typeof window !== 'undefined') localStorage.setItem('lilnest_user', JSON.stringify(user));
+      return ok({ user, tokens: { access: 'mock_token' } });
+    }
+    if (url.includes('/auth/me/')) {
+      let role = 'mother';
+      if (typeof window !== 'undefined') {
+        const stored = JSON.parse(localStorage.getItem('lilnest_user') || '{}');
+        role = stored.role || 'mother';
+      }
+      return ok({ 
+        id: 'user1', email: 'demo@example.com', full_name: 'Demo User', role,
+        mother_profile: { current_weight: 65, due_date: '2026-10-10' }
+      });
+    }
+    if (url.includes('/auth/notifications/')) return ok({ notifications: [], unread_count: 0 });
+
+    // Dashboard Mocks
+    if (url.includes('/dashboard/summary/')) return ok({ bp: '120/80', weight: 65, fetal_weight: 300, fetal_length: 16 });
+    if (url.includes('/dashboard/fetal-updates/')) return ok([{ week: 20, size_comparison: 'Banana', weight_grams: 300, length_cm: 16.4, developments: [], tips: ['Stay hydrated'] }]);
+    if (url.includes('/dashboard/health-logs/')) return ok([]);
+
+    // Marketplace Mocks
+    if (url.includes('/marketplace/providers/')) return ok([{ id: '1', name: 'Dr. Priya Sharma', category: 'Doctor', city: 'Mumbai', price_per_session: 1500, rating: 4.8, total_reviews: 156, available_slots: [] }]);
+    if (url.includes('/marketplace/bookings/')) return ok([]);
+    if (url.includes('/marketplace/payments/create-order/')) return ok({ order_id: 'mock_order_123', amount: 1500, currency: 'INR' });
+
+    // Medical Mocks
+    if (url.includes('/medical/vitals/')) return ok([]);
+    if (url.includes('/medical/medications/')) return ok([]);
+    if (url.includes('/medical/scans/')) return ok([]);
+    if (url.includes('/medical/sos/')) return ok({ status: 'SOS Triggered' });
+
+    // AI Engine Mocks
+    if (url.includes('/ai/diet-plan/')) return ok({ plan_details: 'Mocked Indian Diet Plan: Breakfast: Poha, Lunch: Dal Rice, Dinner: Roti Sabzi' });
+    if (url.includes('/ai/fitness-plan/')) return ok({ plan_details: 'Mocked Fitness Plan: 15 min Prenatal Yoga, 10 min Walking.' });
+    if (url.includes('/ai/symptom-check/')) return ok({ triage_level: 'low', recommendation: 'Rest and hydrate. Consult doctor if it persists.' });
+
+    // Default Fallback
+    return ok([]);
+  };
+  return config;
+});
+
 // ─── Auth ──────────────────────────────────────────────────────
 export const authAPI = {
   register: (data) => api.post('/auth/register/', data),
